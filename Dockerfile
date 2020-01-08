@@ -1,18 +1,25 @@
-FROM python:3-alpine as base
+FROM python:3.7-slim-stretch AS base
 
 ENV PYROOT /pyroot
 ENV PYTHONUSERBASE $PYROOT
 
-RUN apk update && \
-    apk add py-pip
 
-COPY Pipfile* .
+FROM base as builder
+
+RUN apt update && \
+    apt install -y python-pip && \
+    apt -y clean && \
+    pip install pipenv
+
+# Update pipenv libs
+COPY Pipfile* ./
 RUN PIP_USER=1 PIP_IGNORE_INSTALLED=1 pipenv install --system --deploy --ignore-pipfile
 
 
 FROM base
 
+# Python libs and sources
 COPY --from=builder $PYROOT/lib/ $PYROOT/lib/
-COPY flight-selenium.py .
+COPY rentalcar-requests.py .
 
-CMD ["python3", "main.py"]
+CMD ["python", "rentalcar-requests.py"]
