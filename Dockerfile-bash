@@ -1,0 +1,9 @@
+FROM debian:buster-slim
+
+RUN apt update && \
+    apt install -y curl && \
+    apt cache clean
+
+COPY bsp-auto.sh .
+
+CMD ["bash", "bsp-auto.sh"]

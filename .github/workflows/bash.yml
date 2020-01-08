@@ -1,0 +1,22 @@
+name: Docker Image CI
+on:
+  push:
+    branches:
+    - master
+    - chore/github-actions
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile-bash --tag germainlefebvre4/bspauto-scraper:latest
+    - name: Test run container - Run bash script
+      run: docker run --rm germainlefebvre4/bspauto-scraper:latest
+    - name: Publish to Docker Repository
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: germainlefebvre4/bspauto-scraper:latest
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
