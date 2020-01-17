@@ -28,14 +28,15 @@ docker run -tid --name=bspauto-scraper germainlefebvre4/bspauto-scraper:latest
 ### List of parameters
 | Parameter name | Description | Values | Default | Implemented? |
 |---|---|---|---|---|
-| BSP_ORIGIN | City or airport where you start. | string (Bsp Auto location code) | 10 | Not yet |
-| BSP_DESTINATION | City or airport where you go.  | string (Bsp Auto location code) | - | Not yet |
-| BSP_DATE_DEPARTURE | Date for departure. | string (DD/MM/YYYY) | - | Not yet |
-| BSP_DATE_RETURN | Date for return. | string (DD/MM/YYYY) | - | Not yet|
+| BSP_ORIGIN | City or airport where you start. | string (Bsp Auto location code) | - | Yes |
+| BSP_DESTINATION | City or airport where you go.  | string (Bsp Auto location code) | - | Yes |
+| BSP_DATE_DEPARTURE | Date for departure. | string (DD/MM/YYYY) | - | Yes |
+| BSP_DATE_RETURN | Date for return. | string (DD/MM/YYYY) | - | Yes |
+| BSP_CARS | Cars to be watched. | string (car1,car2) | - | Yes |
 
 **IATA code is documented at [https://www.iata.org/en/publications/directories/code-search/](https://www.iata.org/en/publications/directories/code-search/) **
 
 ### Run the script with parameters
 ```bash
-docker run -tid --name=bspauto-scraper -e BSP_ORIGIN=3327 -e BSP_DESTINATION=3327 -e BSP_DATE_DEPARTURE="09/05/2020" -e BSP_DATE_RETURN="16/05/2020" germainlefebvre4/bspauto-scraper:latest
+docker run -tid --name=bspauto-scraper -e BSP_ORIGIN='3327' -e BSP_DESTINATION='3327' -e BSP_DATE_DEPARTURE='09/05/2020' -e BSP_DATE_RETURN='16/05/2020' -e BSP_CARS='RENAULT CLIO*' germainlefebvre4/bspauto-scraper:latest
 ```
