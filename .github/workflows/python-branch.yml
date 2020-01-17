@@ -13,6 +13,7 @@ jobs:
     - name: Extract branch name
       shell: bash
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/} | tr '[|/]' '-')"
+      id: extract_branch
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag germainlefebvre4/bspauto-scraper:${{ steps.extract_branch.outputs.branch }}
     - name: Test run container - Run python script
