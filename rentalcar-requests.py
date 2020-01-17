@@ -16,9 +16,10 @@ dateReturn = os.getenv('BSP_DATE_RETURN')
 #dateReturn = '16/05/2020'
 timeDeparture = '14:00'
 timeReturn = '14:00'
-selectedCars = [
-    "RENAULT CLIO*",
-]
+#selectedCars = [
+#    "RENAULT CLIO*",
+#]
+selectedCars = os.getenv('BSP_CARS').split(',')
 
 # Compile url with parameters
 url = 'http://www.bsp-auto.com/fr/list.asp?ag_depart={}&ag_retour={}&vu=0&date_a={}&heure_a={}&date_d={}&heure_d={}'.format(locationDeparture, locationReturn, urllib.parse.quote(dateDeparture, safe=''), urllib.parse.quote(timeDeparture, safe=''), urllib.parse.quote(dateReturn, safe=''), urllib.parse.quote(timeReturn, safe=''))
