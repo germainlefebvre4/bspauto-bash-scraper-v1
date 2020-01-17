@@ -1,11 +1,19 @@
+import os
 import urllib.parse
 import requests
 import re
 
-locationDeparture = 3327 # Location code
-locationReturn = 3327 # Location code
-dateDeparture = '09/05/2020'
-dateReturn = '16/05/2020'
+from dotenv import load_dotenv
+load_dotenv()
+
+locationDeparture = os.getenv('BSP_ORIGIN')
+locationReturn = os.getenv('BSP_DESTINATION')
+dateDeparture = os.getenv('BSP_DATE_DEPARTURE')
+dateReturn = os.getenv('BSP_DATE_RETURN')
+#locationDeparture = 3327 # Location code
+#locationReturn = 3327 # Location code
+#dateDeparture = '09/05/2020'
+#dateReturn = '16/05/2020'
 timeDeparture = '14:00'
 timeReturn = '14:00'
 selectedCars = [
