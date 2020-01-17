@@ -1,4 +1,4 @@
-# Flight scraper
+# Rental Car scraper
 
 ## Getting started
 ```bash
