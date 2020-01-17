@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bspauto-scraper
+  namespace: bspauto-scraper
+spec:
+  containers:
+    - name: spauto-scraper
+      image: germainlefebvre4/bspauto-scraper:latest
+      stdin: true
+      tty: true
+      env:
+      - name: BSP_ORIGIN
+        value: "3327"
+      - name: BSP_DESTINATION
+        value: "3327"
+      - name: BSP_DATE_DEPARTURE
+        value: '09/05/2020'
+      - name: BSP_DATE_RETURN
+        value: '16/05/2020'
