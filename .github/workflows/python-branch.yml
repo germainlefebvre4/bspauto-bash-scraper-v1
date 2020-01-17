@@ -16,8 +16,8 @@ jobs:
       id: extract_branch
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag germainlefebvre4/bspauto-scraper:${{ steps.extract_branch.outputs.branch }}
-    - name: Test run container - Run python script
-      run: docker run --rm germainlefebvre4/bspauto-scraper:${{ steps.extract_branch.outputs.branch }}
+#    - name: Test run container - Run python script
+#      run: docker run --rm germainlefebvre4/bspauto-scraper:${{ steps.extract_branch.outputs.branch }}
     - name: Publish to Docker Repository
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
