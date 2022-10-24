@@ -7,10 +7,14 @@ dirname='.'
 header="date"
 content=""
 cars=()
-cars[0]="RENAULT TWINGO*"
+cars[0]="RENAULT MEGANE"
+cars[1]="RENAULT SCENIC"
+cars[2]="PEUGEOT 3008"
+cars[3]="JEEP COMPASS"
+cars[4]="VW PASSAT"
 current_price=257
 
-URL='https://www.bsp-auto.com/fr/list.asp?ag_depart=3327&ag_retour=3327&vu=0&date_a=24%2F03%2F2020&heure_a=15%3A30&date_d=04%2F04%2F2020&heure_d=15%3A00'
+URL='https://www.bsp-auto.com/fr/list.asp?ag_depart=2715&date_a=21%2F05%2F2023&heure_a=15%3A00&ag_retour=2715&date_d=02%2F06%2F2023&heure_d=15%3A00&chkage=1&age=25'
 
 curl -s "$URL" > $dirname/bsp-auto.curl
 
@@ -21,8 +25,8 @@ done
 
 # Set content
 for i in ${!cars[@]} ; do
-  price=`cat $dirname/bsp-auto.curl | grep -A1 -i -a "class=tit_modele>RENAULT TWINGO*" | head -2 | tail -1 | grep -o -P "class=tarif>\K([0-9]*)"`
-  content="$content,$price"
+  prix=`cat $dirname/bsp-auto.curl | grep -A1 -i -a "class=tit_modele>${cars[i]}" | head -2 | grep -o -P "class=tarif>\K([0-9]*)"`
+  content="$content,$prix"
 done
 
 # Add colummn current if set
