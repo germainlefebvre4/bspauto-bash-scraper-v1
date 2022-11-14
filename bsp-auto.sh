@@ -4,6 +4,11 @@ date=`date "+%F %T"`
 dirname=$(dirname `readlink -f $0`)
 dirname='.'
 
+trip_date_from="14/05/2023"
+trip_date_to="24/05/2023"
+trip_date_from_encoded=$(echo -n ${trip_date_from} | jq -sRr @uri)
+trip_date_to_encoded=$(echo -n ${trip_date_to} | jq -sRr @uri)
+
 header="date"
 content=""
 cars=()
@@ -14,7 +19,12 @@ cars[3]="JEEP COMPASS"
 cars[4]="VW PASSAT"
 current_price=257
 
-URL='https://www.bsp-auto.com/fr/list.asp?ag_depart=2715&date_a=21%2F05%2F2023&heure_a=15%3A00&ag_retour=2715&date_d=02%2F06%2F2023&heure_d=15%3A00&chkage=1&age=25'
+URL='https://www.bsp-auto.com/fr/list.asp?ag_depart=2715&date_a='${trip_date_from_encoded}'&heure_a=15%3A00&ag_retour=2715&date_d='${trip_date_to_encoded}'&heure_d=15%3A00&chkage=1&age=25'
+
+echo "From ${trip_date_from} to ${trip_date_to}"
+echo "URL: ${URL}"
+echo "Result file: $dirname/bsp-auto"
+echo ""
 
 curl -s "$URL" > $dirname/bsp-auto.curl
 
@@ -25,8 +35,8 @@ done
 
 # Set content
 for i in ${!cars[@]} ; do
-  prix=`cat $dirname/bsp-auto.curl | grep -A1 -i -a "class=tit_modele>${cars[i]}" | head -2 | grep -o -P "class=tarif>\K([0-9]*)"`
-  content="$content,$prix"
+  price=`cat $dirname/bsp-auto.curl | grep -A1 -i -a "class=tit_modele>${cars[i]}" | head -2 | grep -o -P "class=tarif>\K([0-9]*)"`
+  content="$content,$price"
 done
 
 # Add colummn current if set
