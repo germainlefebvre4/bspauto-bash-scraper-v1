@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Publish to Docker Repository
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: germainlefebvre4/bspauto-bash-scraper
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          dockerfile: Dockerfile
+          platforms: linux/amd64
+          tags: "latest"
