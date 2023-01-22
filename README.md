@@ -37,6 +37,15 @@ upload: results/20230513-13h00_20230525-10h00/3720/results.csv to s3://my-aws-bu
 | Cars           | List of cars to watch for.                                               | <ul><li>[x] </li></ul> |                        |             |                    |                  |                                 |
 
 
+## Cronjob
+
+### Add the parser script as cronjob
+
+```bash
+crontab -e
+*/30 * * * * /opt/bspauto/bspauto-bash-scraper-v1/bsp-auto.sh --aws-profile my_aws_profile --aws-bucket bspauto-results --quiet --airport '3720' --departure-date '14/05/2023' --departure-time '13:30' --return-date '25/05/2023' --return-time '10:30' --current-price '575'
+```
+
 ## Dockerhub
 
 Link to Dockerhub : [https://hub.docker.com/r/germainlefebvre4/bspauto-bash-scraper](https://hub.docker.com/r/germainlefebvre4/bspauto-bash-scraper)
