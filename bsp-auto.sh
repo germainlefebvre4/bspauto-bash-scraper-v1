@@ -12,23 +12,13 @@ QUIET=1
 # TRIP_RETURN_DATE="25/05/2023"
 # TRIP_RETURN_TIME="10:30"
 # TRIP_AIRPORT="3720"
-
-cars=()
-cars[0]="RENAULT MEGANE"
-cars[1]="RENAULT SCENIC"
-cars[2]="PEUGEOT 3008"
-cars[3]="JEEP COMPASS"
-cars[4]="VW PASSAT"
-cars[5]="RENAULT CAPTUR"
-cars[6]="RENAULT KANGOO"
-cars[7]="DACIA DUSTER"
-
+# CARS="RENAULT CLIO,PEUGEOT 208,FIAT 500 X,VW GOLF,RENAULT MEGANE,JEEP RENEGADE,PEUGEOT 308,VW PASSAT,PEUGEOT 3008"
 CURRENT_PRICE=""
 
 POSITIONAL_ARGS=()
 
 function usage() {
-  echo "Usage: $0 [--quiet] [--aws-profile <my_aws_profile>] [--aws-bucket <my-aws-bucket>] [--airport <airport_id>] [--departure-date <date_slash>] [-departure-time <time_colon>] [--return-date <date_slash>] [--return-time <time_colon>]"  
+  echo "Usage: $0 [--quiet] [--aws-profile <my_aws_profile>] [--aws-bucket <my-aws-bucket>] [--airport <airport_id>] [--departure-date <date_slash>] [-departure-time <time_colon>] [--return-date <date_slash>] [--return-time <time_colon>] [--cars <cars_comma>]"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -69,6 +59,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -rt|--return-time)
       TRIP_RETURN_TIME="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -ca|--cars)
+      IFS=',' read -r -a CARS <<< "$2"
       shift # past argument
       shift # past value
       ;;
@@ -121,6 +116,10 @@ if [ -z "${TRIP_RETURN_TIME}" ]; then
   MISSING_ARGS_TEXT="${MISSING_ARGS_TEXT} - Return time\n"
   MISSING_ARGS_FLAG=0
 fi
+if [ -z "${CARS}" ]; then
+  MISSING_ARGS_TEXT="${MISSING_ARGS_TEXT} - Cars\n"
+  MISSING_ARGS_FLAG=0
+fi
 if [ ${MISSING_ARGS_FLAG} -eq 0 ]; then
   echo -e "${MISSING_ARGS_TEXT}"
   usage
@@ -157,13 +156,13 @@ mkdir -p ${dirname}/${result_dir}
 curl -s "${URL}" > ${dirname}/${result_dir}/wip.curl
 
 # Set header
-for i in ${!cars[@]} ; do
-  header="$header,${cars[$i]}"
+for i in ${!CARS[@]} ; do
+  header="$header,${CARS[$i]}"
 done
 
 # Set content
-for i in ${!cars[@]} ; do
-  price=`cat ${dirname}/${result_dir}/wip.curl | grep -A1 -i -a "class=tit_modele>${cars[i]}" | head -2 | grep -o -P "class=tarif>\K([0-9]*)"`
+for i in ${!CARS[@]} ; do
+  price=`cat ${dirname}/${result_dir}/wip.curl | grep -A1 -i -a "class=tit_modele>${CARS[i]}" | head -2 | grep -o -P "class=tarif>\K([0-9]*)"`
   content="${content},${price}"
 done
 
