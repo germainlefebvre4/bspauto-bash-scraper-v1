@@ -13,12 +13,13 @@ QUIET=1
 # TRIP_RETURN_TIME="10:30"
 # TRIP_AIRPORT="3720"
 # CARS="RENAULT CLIO,PEUGEOT 208,FIAT 500 X,VW GOLF,RENAULT MEGANE,JEEP RENEGADE,PEUGEOT 308,VW PASSAT,PEUGEOT 3008"
+# NTFY_TOKEN="my_ntfy_token"
 CURRENT_PRICE=""
 
 POSITIONAL_ARGS=()
 
 function usage() {
-  echo "Usage: $0 [--quiet] [--aws-profile <my_aws_profile>] [--aws-bucket <my-aws-bucket>] [--airport <airport_id>] [--departure-date <date_slash>] [-departure-time <time_colon>] [--return-date <date_slash>] [--return-time <time_colon>] [--cars <cars_comma>]"
+  echo "Usage: $0 [--quiet] [--aws-profile <my_aws_profile>] [--aws-bucket <my-aws-bucket>] [--airport <airport_id>] [--departure-date <date_slash>] [-departure-time <time_colon>] [--return-date <date_slash>] [--return-time <time_colon>] [--cars <cars_comma>] [--ntfy-token <ntfy_token>]"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -69,6 +70,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     -cp|--current-price)
       CURRENT_PRICE="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -ntfy|--ntfy-token)
+      NTFY_TOKEN="$2"
       shift # past argument
       shift # past value
       ;;
@@ -153,7 +159,7 @@ if [ $QUIET -eq 1 ]; then
 fi
 
 mkdir -p ${dirname}/${result_dir}
-curl -s "${URL}" > ${dirname}/${result_dir}/wip.curl
+# curl -s "${URL}" > ${dirname}/${result_dir}/wip.curl
 
 # Set header
 for i in ${!CARS[@]} ; do
@@ -183,25 +189,35 @@ fi
 
 
 # Publish on S3 Bucket
-AWS_QUIET=""
 if [ ${QUIET} -eq 0 ]; then
-  AWS_QUIET="${AWS_QUIET} --quiet"
+  AWS_QUIET="--quiet"
 else
-  echo ""
+  AWS_QUIET=""
 fi
 aws s3 cp ${dirname}/${result_dir}/${result_file} s3://${AWS_BUCKET}/${result_dir}/${result_file} --profile ${AWS_PROFILE} ${AWS_QUIET}
 aws s3api put-object-acl --bucket ${AWS_BUCKET} --key ${result_dir}/${result_file} --acl public-read --profile ${AWS_PROFILE}
 
 
 # # Check if price is better and send email
-# line_last=(`tail -1 ${dirname}/wip.result | cut -d',' -f2- | tr ',' '\n'`)
-# line_before=(`tail -2 ${dirname}/wip.result | head -1| cut -d',' -f2- | tr ',' '\n'`)
-# for((i=0;i<${#line_last[@]};i++)) ; do
-#   # Handle new values
-#   if [ "${line_last[$i]}" != "" ] && [ "${line_before[$i]}" != "" ] ; then
-#     # Test if value is better than the min
-#     if [ "${line_last[$i]}" -lt "${CURRENT_PRICE}" ] ; then
-#       flag_email=0
-#     fi
-#   fi
-# done
+if [ ${QUIET} -eq 0 ]; then
+  CURL_QUIET="--silent"
+else
+  CURL_QUIET=""
+fi
+if [ ! -f ${dirname}/${result_dir}/lowest_price ] ; then
+  echo 99999 > ${dirname}/${result_dir}/lowest_price
+fi
+price_lowest=(`cat ${dirname}/${result_dir}/lowest_price`)
+price_last=(`tail -1 ${dirname}/${result_dir}/wip.result | cut -d',' -f2- | tr ',' '\n'`)
+for car_idx in ${!CARS[@]} ; do
+  cut_id=$((${i} + 2))
+  price_last=(`tail -1 ${dirname}/${result_dir}/wip.result | cut -d',' -f${cut_id}- | tr ',' '\n'`)
+  if [ `echo "${price_last} < ${CURRENT_PRICE}" | bc` -eq 1 ] && [ `echo "${price_last} < ${price_lowest}" | bc` -eq 1 ] ; then
+    if [ ${QUIET} -eq 1 ]; then
+      echo ""
+      echo "New lowest price: ${price_last} for ${CARS[$i]}"
+    fi
+    echo ${price_last} > ${dirname}/${result_dir}/lowest_price
+    curl ${CURL_QUIET} -d "${CARS[$i]} at ${price_last} | ${TRIP_AIRPORT} | From ${TRIP_DEPARTURE_DATE} to ${TRIP_RETURN_DATE}" ntfy.sh/${NTFY_TOKEN}
+  fi
+done
