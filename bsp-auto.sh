@@ -159,7 +159,7 @@ if [ $QUIET -eq 1 ]; then
 fi
 
 mkdir -p ${dirname}/${result_dir}
-# curl -s "${URL}" > ${dirname}/${result_dir}/wip.curl
+curl -s "${URL}" > ${dirname}/${result_dir}/wip.curl
 
 # Set header
 for i in ${!CARS[@]} ; do
@@ -198,24 +198,24 @@ aws s3 cp ${dirname}/${result_dir}/${result_file} s3://${AWS_BUCKET}/${result_di
 aws s3api put-object-acl --bucket ${AWS_BUCKET} --key ${result_dir}/${result_file} --acl public-read --profile ${AWS_PROFILE}
 
 # # Check if price is better and send email
-if [ ${QUIET} -eq 0 ]; then
-  CURL_QUIET="--silent -o /dev/null"
-else
-  CURL_QUIET=""
-fi
-if [ ! -f ${dirname}/${result_dir}/lowest_price ] ; then
-  echo 99999 > ${dirname}/${result_dir}/lowest_price
-fi
-price_lowest=(`cat ${dirname}/${result_dir}/lowest_price`)
-for car_idx in ${!CARS[@]} ; do
-  cut_id=$((${car_idx} + 2))
-  price_last=(`tail -1 ${dirname}/${result_dir}/wip.result | cut -d',' -f${cut_id}- | tr ',' '\n'`)
-  if [ `echo "${price_last} < ${CURRENT_PRICE}" | bc` -eq 1 ] && [ `echo "${price_last} < ${price_lowest}" | bc` -eq 1 ] ; then
-    if [ ${QUIET} -eq 1 ]; then
-      echo ""
-      echo "New lowest price: ${price_last} for ${CARS[$car_idx]}"
-    fi
-    echo ${price_last} > ${dirname}/${result_dir}/lowest_price
-    curl ${CURL_QUIET} -d "${CARS[$car_idx]} at ${price_last} | ${TRIP_AIRPORT} | From ${TRIP_DEPARTURE_DATE} to ${TRIP_RETURN_DATE}" ntfy.sh/${NTFY_TOKEN}
-  fi
-done
+# if [ ${QUIET} -eq 0 ]; then
+#   CURL_QUIET="--silent -o /dev/null"
+# else
+#   CURL_QUIET=""
+# fi
+# if [ ! -f ${dirname}/${result_dir}/lowest_price ] ; then
+#   echo 99999 > ${dirname}/${result_dir}/lowest_price
+# fi
+# price_lowest=(`cat ${dirname}/${result_dir}/lowest_price`)
+# for car_idx in ${!CARS[@]} ; do
+#   cut_id=$((${car_idx} + 2))
+#   price_last=(`tail -1 ${dirname}/${result_dir}/wip.result | cut -d',' -f${cut_id}- | tr ',' '\n'`)
+#   if [ `echo "${price_last} < ${CURRENT_PRICE}" | bc` -eq 1 ] && [ `echo "${price_last} < ${price_lowest}" | bc` -eq 1 ] ; then
+#     if [ ${QUIET} -eq 1 ]; then
+#       echo ""
+#       echo "New lowest price: ${price_last} for ${CARS[$car_idx]}"
+#     fi
+#     echo ${price_last} > ${dirname}/${result_dir}/lowest_price
+#     curl ${CURL_QUIET} -d "${CARS[$car_idx]} at ${price_last} | ${TRIP_AIRPORT} | From ${TRIP_DEPARTURE_DATE} to ${TRIP_RETURN_DATE}" ntfy.sh/${NTFY_TOKEN}
+#   fi
+# done
